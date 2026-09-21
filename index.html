@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Aurora Glass — Liquid Glass UI Kit</title>
+<link rel="stylesheet" href="css/glass.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;550;600;650;700;800&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- SVG defs: refraction lens + ring gradient -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="glass-lens" x="-20%" y="-20%" width="140%" height="140%">
+      <feDisplacementMap in="SourceGraphic" in2="SourceGraphic" scale="24"
+        xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+    <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#7c6cff"/><stop offset="100%" stop-color="#54d9ff"/>
+    </linearGradient>
+    <linearGradient id="donutGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff6ec7"/><stop offset="100%" stop-color="#7c6cff"/>
+    </linearGradient>
+    <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4fe3a3"/><stop offset="60%" stop-color="#ffb85c"/><stop offset="100%" stop-color="#ff6b7a"/>
+    </linearGradient>
+    <!-- gooey metaballs filter -->
+    <filter id="goo"><feGaussianBlur in="SourceGraphic" stdDeviation="7"/>
+      <feColorMatrix values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9"/></filter>
+    <!-- objectBoundingBox clip paths — scale to any element size -->
+    <clipPath id="clip-squircle" clipPathUnits="objectBoundingBox">
+      <path d="M0.5,0 C0.776,0 1,0.224 1,0.5 C1,0.776 0.776,1 0.5,1 C0.224,1 0,0.776 0,0.5 C0,0.224 0.224,0 0.5,0 Z"/>
+    </clipPath>
+    <clipPath id="clip-pin" clipPathUnits="objectBoundingBox">
+      <path d="M0.5,0 C0.776,0 1,0.224 1,0.46 C1,0.58 0.86,0.66 0.72,0.78 C0.64,0.85 0.56,0.9 0.5,1 C0.44,0.9 0.36,0.85 0.28,0.78 C0.14,0.66 0,0.58 0,0.46 C0,0.224 0.224,0 0.5,0 Z"/>
+    </clipPath>
+    <clipPath id="clip-crescent" clipPathUnits="objectBoundingBox">
+      <path d="M0.55,0.02 A0.49,0.49 0 1,0 0.55,0.98 A0.42,0.42 0 1,1 0.55,0.02 Z" clip-rule="evenodd"/>
+    </clipPath>
+    <clipPath id="clip-wave" clipPathUnits="objectBoundingBox">
+      <path d="M0,0 L1,0 L1,0.8 C0.94,0.9 0.86,0.7 0.75,0.8 C0.63,0.9 0.55,0.72 0.44,0.8 C0.32,0.9 0.25,0.7 0.14,0.8 C0.07,0.86 0.03,0.82 0,0.78 Z"/>
+    </clipPath>
+    <clipPath id="clip-folder" clipPathUnits="objectBoundingBox">
+      <path d="M0,0.16 Q0,0.05 0.08,0.05 L0.32,0.05 Q0.37,0.05 0.41,0.08 L0.46,0.13 Q0.49,0.16 0.55,0.16 L0.92,0.16 Q1,0.16 1,0.26 L1,0.9 Q1,1 0.92,1 L0.08,1 Q0,1 0,0.9 Z"/>
+    </clipPath>
+    <clipPath id="clip-tag" clipPathUnits="objectBoundingBox">
+      <path clip-rule="evenodd" d="M0,0.1 Q0,0 0.1,0 L0.78,0 Q0.87,0 0.92,0.1 L1,0.5 L0.92,0.9 Q0.87,1 0.78,1 L0.1,1 Q0,1 0,0.9 Z M0.74,0.5 m-0.055,0 a0.055,0.055 0 1,0 0.11,0 a0.055,0.055 0 1,0 -0.11,0"/>
+    </clipPath>
+  </defs>
+</svg>
+
+<!-- ambient stage -->
+<div class="stage">
+  <div class="aurora"></div>
+  <div class="orb orb-a"></div><div class="orb orb-b"></div>
+  <div class="orb orb-c"></div><div class="orb orb-d"></div>
+</div>
+<div class="grain"></div>
+
+<!-- top navigation (component 001 — itself part of the kit) -->
+<header class="topnav glass-3 rim" data-demo>
+  <div class="brand"><span class="logo">◈</span> Aurora Glass</div>
+  <nav>
+    <a href="#actions">Actions</a>
+    <a href="#inputs">Inputs</a>
+    <a href="#cards">Cards</a>
+    <a href="#overlays">Overlays</a>
+    <a href="#data">Data</a>
+  </nav>
+  <button class="btn btn-sm btn-ghost" id="palette-btn">⌘ <span class="kbd">K</span></button>
+  <button class="btn btn-sm btn-icon round" id="theme-btn" title="Toggle theme">☾</button>
+</header>
+
+<main class="wrap">
+  <!-- ============================================================ HERO -->
+  <section class="hero">
+    <div class="hero-orb"></div>
+    <div class="hero-orb o2"></div>
+    <p class="eyebrow reveal">A complete liquid-glass component library</p>
+    <h1 class="display reveal">Glass that bends<br/><span class="grad-text">light, not rules.</span></h1>
+    <p class="lead reveal">173 production-ready glassmorphism components — six optical layers deep: refraction blur, body tint, rim light, specular sheen, inner depth and elevation.</p>
+    <div class="cta reveal">
+      <a class="btn btn-primary btn-lg" href="#actions">Browse components</a>
+      <a class="btn btn-lg" href="flutter/glass_kit.dart">Flutter port ↗</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hs glass-1 rim"><b class="grad-text" id="stat-components">0</b><span>Components</span></div>
+      <div class="hs glass-1 rim"><b class="grad-text" id="stat-layers">6</b><span>Optical layers</span></div>
+      <div class="hs glass-1 rim"><b class="grad-text">2</b><span>Themes</span></div>
+      <div class="hs glass-1 rim"><b class="grad-text">0</b><span>Dependencies</span></div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <!-- side rail -->
+    <aside class="rail glass-2" id="rail">
+      <a href="#actions">Actions <span class="n"></span></a>
+      <a href="#inputs">Inputs <span class="n"></span></a>
+      <a href="#cards">Cards <span class="n"></span></a>
+      <a href="#navigation">Navigation <span class="n"></span></a>
+      <a href="#overlays">Overlays <span class="n"></span></a>
+      <a href="#data">Data <span class="n"></span></a>
+      <a href="#feedback">Feedback <span class="n"></span></a>
+      <a href="#shapes">Shapes <span class="n"></span></a>
+      <a href="#effects">Effects <span class="n"></span></a>
+    </aside>
+
+    <div>
+    <!-- ====================================================== ACTIONS -->
+    <section class="section" id="actions">
+      <div class="section-head"><h2 class="h1">Actions</h2><span class="count"></span></div>
+      <p class="section-sub">Buttons, toggles and controls — Level-1 glass: thin, responsive, spring-loaded.</p>
+
+      <div class="demo-grid">
+        <div class="demo"><div class="demo-num"><span>BUTTON · PRIMARY</span><i></i></div>
+          <div class="demo-body"><button class="btn btn-primary">Get started</button>
+          <button class="btn btn-primary">→ Deploy now</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BUTTON · GHOST</span><i></i></div>
+          <div class="demo-body"><button class="btn btn-ghost">Cancel</button>
+          <button class="btn btn-ghost">⌘ Command</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BUTTON · DESTRUCTIVE</span><i></i></div>
+          <div class="demo-body"><button class="btn btn-destructive">Delete account</button>
+          <button class="btn btn-destructive btn-sm">Remove</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BUTTON · TINTED</span><i></i></div>
+          <div class="demo-body"><button class="btn btn-cyan">Publish</button>
+          <button class="btn btn-pink">♥ Sponsor</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BUTTON · GLOW OUTLINE</span><i></i></div>
+          <div class="demo-body"><button class="btn btn-outline-glow">✦ Generate</button>
+          <button class="btn btn-outline-glow btn-sm">AI remix</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BUTTON · ICON</span><i></i></div>
+          <div class="demo-body"><button class="btn btn-icon">⚙</button>
+          <button class="btn btn-icon">⤓</button>
+          <button class="btn btn-icon round">✎</button>
+          <button class="btn btn-icon round btn-primary">＋</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BUTTON · SIZES</span><i></i></div>
+          <div class="demo-body"><button class="btn btn-sm">Small</button>
+          <button class="btn">Default</button>
+          <button class="btn btn-lg">Large</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BUTTON · LOADING</span><i></i></div>
+          <div class="demo-body"><button class="btn btn-primary" id="load-btn" onclick="this.classList.add('loading');setTimeout(()=>this.classList.remove('loading'),2200)">Save changes</button>
+          <button class="btn loading">Saving</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BUTTON · DISABLED</span><i></i></div>
+          <div class="demo-body"><button class="btn" disabled>Unavailable</button>
+          <button class="btn btn-primary" disabled>Locked</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>FAB</span><i></i></div>
+          <div class="demo-body"><button class="fab">＋</button>
+          <button class="fab" style="background:linear-gradient(160deg,rgba(255,110,199,.85),rgba(220,60,160,.65));border-color:rgba(255,150,215,.5)">✎</button>
+          <span class="muted tiny">Floating action — lifts on hover, squashes on press</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SEGMENTED CONTROL</span><i></i></div>
+          <div class="demo-body"><div class="seg glass-1" data-seg>
+            <span class="thumb"></span>
+            <button class="on">Day</button><button>Week</button><button>Month</button>
+          </div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>CHIPS</span><i></i></div>
+          <div class="demo-body"><span class="chip glass-1">glassmorphism <button class="x">✕</button></span>
+          <span class="chip glass-indigo chip-solid">design-system <button class="x">✕</button></span>
+          <span class="chip glass-cyan">blur(24px)</span>
+          <span class="chip glass-1 chip-outline">outline</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SWITCH</span><i></i></div>
+          <div class="demo-body">
+            <label class="switch"><input type="checkbox" checked /><span class="trk"><span class="knob"></span></span></label>
+            <label class="switch"><input type="checkbox" /><span class="trk"><span class="knob"></span></span></label>
+            <span class="muted tiny">Spring knob · tinted track when on</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>CHECKBOX</span><i></i></div>
+          <div class="demo-body col">
+            <label class="gcheck"><input type="checkbox" checked /><span class="box"><svg viewBox="0 0 12 10"><path d="M1 5l3.5 3.5L11 1"/></svg></span>Reduce transparency</label>
+            <label class="gcheck"><input type="checkbox" /><span class="box"><svg viewBox="0 0 12 10"><path d="M1 5l3.5 3.5L11 1"/></svg></span>High contrast rim</label>
+            <label class="gcheck"><input type="checkbox" /><span class="box"><svg viewBox="0 0 12 10"><path d="M1 5l3.5 3.5L11 1"/></svg></span>Specular highlights</label>
+          </div></div>
+
+        <div class="demo"><div class="demo-num"><span>RADIO</span><i></i></div>
+          <div class="demo-body col">
+            <label class="gradio"><input type="radio" name="q" checked /><span class="box"></span>Frosted</label>
+            <label class="gradio"><input type="radio" name="q" /><span class="box"></span>Refractive</label>
+            <label class="gradio"><input type="radio" name="q" /><span class="box"></span>Opaque</label>
+          </div></div>
+
+        <div class="demo"><div class="demo-num"><span>RANGE SLIDER</span><i></i></div>
+          <div class="demo-body col">
+            <input type="range" class="grange" value="65" />
+            <input type="range" class="grange" value="30" />
+            <div class="muted tiny">Blur radius <b class="mono" id="range-out">65</b>px — drag it</div>
+          </div></div>
+
+        <div class="demo"><div class="demo-num"><span>STAR RATING</span><i></i></div>
+          <div class="demo-body"><div class="rate" data-rate="4">
+            <button>★</button><button>★</button><button>★</button><button>★</button><button>★</button>
+          </div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>STEPPER</span><i></i></div>
+          <div class="demo-body"><div class="stepper glass-1">
+            <button data-step="-1">−</button><span class="val">2</span><button data-step="1">+</button>
+          </div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>LIKE BUTTON</span><i></i></div>
+          <div class="demo-body"><button class="like" onclick="this.classList.toggle('on')">♥</button>
+          <button class="like on" onclick="this.classList.toggle('on')">♥</button>
+          <span class="muted tiny">Squash-and-glow on toggle</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>KEYBOARD KEYS</span><i></i></div>
+          <div class="demo-body"><span class="kbd2">⌘</span><span class="kbd2">⇧</span><span class="kbd2">K</span>
+          <span class="kbd2">esc</span><span class="kbd2">↵</span>
+          <span class="muted tiny">Physical depth via bottom keycap shadow</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SPLIT BUTTON</span><i></i></div>
+          <div class="demo-body"><div class="split">
+            <button class="btn btn-primary btn-main">Merge</button>
+            <button class="btn btn-primary btn-more">▾</button></div>
+            <span class="muted tiny">Primary action + menu on one pane</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BUTTON · BADGED</span><i></i></div>
+          <div class="demo-body"><span class="badge-anchor"><button class="btn">🔔 Alerts</button><span class="badge-num">12</span></span>
+            <span class="badge-anchor"><button class="btn btn-ghost">✉ Inbox</button><span class="badge-num">3</span></span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>LINK BUTTON</span><i></i></div>
+          <div class="demo-body"><button class="btn-link">Read the docs →</button>
+            <button class="btn-link">View changelog</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TOGGLE GROUP</span><i></i></div>
+          <div class="demo-body"><div class="tgroup glass-1" data-tgroup>
+            <button class="on">B</button><button><i>I</i></button><button><u>U</u></button><button>S</button></div>
+            <span class="muted tiny">Formatting toggles on one glass rail</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>PILL TOGGLE · SEGMENTED WIDE</span><i></i></div>
+          <div class="demo-body"><div class="seg glass-1" data-seg>
+            <span class="thumb"></span>
+            <button class="on">◈ Grid</button><button>☰ List</button><button>◫ Split</button>
+          </div></div></div>
+      </div>
+    </section>
+
+    <!-- ====================================================== INPUTS -->
+    <section class="section" id="inputs">
+      <div class="section-head"><h2 class="h1">Inputs</h2><span class="count"></span></div>
+      <p class="section-sub">Inset glass fields — shadow inside, light on the rim, glow on focus.</p>
+
+      <div class="demo-grid">
+        <div class="demo"><div class="demo-num"><span>TEXT FIELD</span><i></i></div>
+          <div class="demo-body col"><div class="field"><label>Display name</label>
+            <div class="input"><input type="text" placeholder="Naruto Uzumaki" /></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SEARCH FIELD</span><i></i></div>
+          <div class="demo-body col"><div class="input search"><span class="ic">⌕</span>
+            <input type="search" placeholder="Search components…" /><button class="btn btn-primary">Search</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>PASSWORD · PEEK</span><i></i></div>
+          <div class="demo-body col"><div class="input"><span class="ic">⚿</span>
+            <input type="password" value="hunter2x" id="pw" /><button class="peek" onclick="const p=document.getElementById('pw');p.type=p.type==='password'?'text':'password';this.textContent=p.type==='password'?'◉':'◎'">◉</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>FLOATING LABEL</span><i></i></div>
+          <div class="demo-body col"><div class="input input-float">
+            <input type="email" placeholder=" " /><label>Email address</label></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TEXTAREA</span><i></i></div>
+          <div class="demo-body col"><div class="input" style="align-items:stretch">
+            <textarea placeholder="Describe the vibe…"></textarea></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SELECT</span><i></i></div>
+          <div class="demo-body col"><div class="input"><select>
+            <option>🌙 Dark glass</option><option>☀ Light glass</option><option>✦ Auto</option>
+          </select><span class="ic">▾</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>AFFIXES</span><i></i></div>
+          <div class="demo-body col"><div class="input"><span class="affix">https://</span>
+            <input type="text" placeholder="yoursite" /><span class="affix">.glass</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>OTP CELLS</span><i></i></div>
+          <div class="demo-body"><div class="otp">
+            <input maxlength="1" value="4"/><input maxlength="1" value="2"/><input maxlength="1" />
+            <input maxlength="1" /><input maxlength="1" /><input maxlength="1" />
+          </div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TAG INPUT</span><i></i></div>
+          <div class="demo-body col"><div class="input tagbox">
+            <span class="chip glass-indigo">glass <button class="x">✕</button></span>
+            <span class="chip glass-pink">blur <button class="x">✕</button></span>
+            <input placeholder="Add tag…" /></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SWATCH PICKER</span><i></i></div>
+          <div class="demo-body"><div class="swatches">
+            <button class="swatch on" style="background:#7c6cff"></button>
+            <button class="swatch" style="background:#54d9ff"></button>
+            <button class="swatch" style="background:#ff6ec7"></button>
+            <button class="swatch" style="background:#ffb85c"></button>
+            <button class="swatch" style="background:#4fe3a3"></button>
+          </div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>FIELD STATE · ERROR</span><i></i></div>
+          <div class="demo-body col"><div class="field err"><label>API key</label>
+            <div class="input"><input type="text" value="sk-…" /></div>
+            <span class="hint">Key expired 3 days ago — rotate it.</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>DATE / TIME</span><i></i></div>
+          <div class="demo-body col"><div class="input"><input type="date" /></div>
+            <div class="input"><input type="time" value="09:41" /></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>COMBOBOX</span><i></i></div>
+          <div class="demo-body col"><div class="input"><span class="ic">⌕</span><input type="text" value="gla" /></div>
+            <div class="combo-list glass-2">
+              <div class="c-item sel">◈ <span><mark>gla</mark>ss-card</span></div>
+              <div class="c-item">◐ <span><mark>gla</mark>ss-nav</span></div>
+              <div class="c-item">◌ <span><mark>gla</mark>ss-ring</span></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>VOICE INPUT</span><i></i></div>
+          <div class="demo-body"><div class="input search" style="flex:1"><span class="ic">◉</span>
+            <input placeholder="Say something…" /><span class="wave"><i style="height:30%"></i><i style="height:80%"></i><i style="height:55%"></i><i style="height:90%"></i><i style="height:45%"></i></span>
+            <button class="btn btn-sm btn-pink">● Rec</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>FILE CHIP</span><i></i></div>
+          <div class="demo-body"><span class="file-chip glass-1"><span class="f-ic glass-indigo">◧</span>spec.pdf <button class="x" style="border:0;background:rgba(255,255,255,.12);border-radius:50%;width:15px;height:15px;color:inherit;font-size:9px;cursor:pointer">✕</button></span>
+            <span class="file-chip glass-1"><span class="f-ic glass-green">♫</span>voice.wav <span class="muted tiny mono">3.2s</span></span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>INLINE EDIT</span><i></i></div>
+          <div class="demo-body"><div class="input" style="flex:1"><input value="Aurora Glass" />
+            <span class="ic" style="color:var(--a-cyan)">✎</span></div>
+            <span class="muted tiny">Focus ring on — editing in place</span></div></div>
+      </div>
+    </section>
+
+    <!-- ====================================================== CARDS -->
+    <section class="section" id="cards">
+      <div class="section-head"><h2 class="h1">Cards</h2><span class="count"></span></div>
+      <p class="section-sub">Level-2 panes — rim-lit gradient hairline, specular top sheen, deep shadows.</p>
+
+      <div class="demo-grid">
+        <div class="demo"><div class="demo-num"><span>CARD · BASIC</span><i></i></div>
+          <div class="demo-body col"><div class="card glass-2 rim spec">
+            <div class="card-title">Frosted surface</div>
+            <p class="card-sub">Six optical layers: blur, tint, rim, specular, depth, elevation.</p>
+            <div><button class="btn btn-sm">Learn more</button></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>CARD · MEDIA</span><i></i></div>
+          <div class="demo-body col"><div class="card card-media glass-2 rim">
+            <div class="cover"></div>
+            <div class="pad"><div class="card-title">Aurora Borealis</div>
+            <p class="card-sub">Gradient cover refracting through the card's body tint.</p></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>STAT CARD</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim spot stat" style="flex:1">
+            <span class="k">Revenue</span><span class="v">$48.2k</span><span class="d up">▲ 12.4%</span></div>
+          <div class="card glass-2 rim spot stat" style="flex:1">
+            <span class="k">Churn</span><span class="v">1.8%</span><span class="d down">▼ 0.3%</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>PRICING CARD</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim spec price" style="flex:1">
+            <div class="plan">Pro</div><div class="amount">$19<small>/mo</small></div>
+            <ul><li>Unlimited panes</li><li>Refraction engine</li><li>Rim-light themes</li></ul>
+            <button class="btn btn-primary btn-block">Upgrade</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>PROFILE CARD</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim profile" style="flex:1">
+            <div class="avatar-wrap"><span class="avatar lg p1">NU</span><span class="presence"></span></div>
+            <div class="name">Naruto Uz</div><div class="role">Design Engineer</div>
+            <p class="bio">Bends light for a living. Coffee ≥ code.</p>
+            <div class="row"><button class="btn btn-primary btn-sm">Follow</button><button class="btn btn-ghost btn-sm">Message</button></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>PRODUCT CARD</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim product" style="flex:1">
+            <div class="thumb">◈</div>
+            <div class="p-row"><span class="p-name">Prism Lens</span><span class="p-price">$129</span></div>
+            <div class="p-row"><span class="muted tiny">Optical-grade acrylic</span><button class="btn btn-sm btn-primary">Add</button></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>PLAYER CARD</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim player" style="flex:1">
+            <div class="art"></div>
+            <div class="meta"><div class="t">Lucid Drift</div><div class="a">VieNeu — Glass Sessions</div>
+              <div class="prog" style="margin-top:8px"><div class="bar" style="width:46%"></div></div></div>
+            <div class="ctrl"><span class="eq"><i></i><i></i><i></i><i></i></span>
+            <button class="btn btn-icon round">▸</button></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>WEATHER CARD</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim weather" style="flex:1">
+            <div><div class="temp">24°</div><div class="cond">Huế — scattered prisms</div></div>
+            <div class="glyph">◐</div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>QUOTE CARD</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim quote" style="flex:1">
+            <div class="q-text">"Real glass doesn't fade — it materializes by modulating how it bends the light behind it."</div>
+            <div class="q-who"><span class="avatar p4">AD</span><div><div class="q-name">Alan Dye</div><div class="q-role">VP Human Interface, paraphrased</div></div></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>FEATURE CARD</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim feature" style="flex:1">
+            <div class="f-ic">◬</div><div class="f-t">Dispersive blur</div>
+            <div class="f-d">Per-channel sigma shifts create the rainbow fringe of real lenses.</div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TRANSACTION ROW</span><i></i></div>
+          <div class="demo-body col">
+            <div class="card glass-2 txn"><span class="ic glass-green">↗</span>
+              <div class="meta"><div class="t">Glass license sale</div><div class="s">Today · 09:41</div></div>
+              <span class="amt pos">+$240.00</span></div>
+            <div class="card glass-2 txn"><span class="ic glass-pink">◈</span>
+              <div class="meta"><div class="t">Prism assets</div><div class="s">Yesterday</div></div>
+              <span class="amt neg">−$59.00</span></div>
+          </div></div>
+
+        <div class="demo"><div class="demo-num"><span>GLOW BORDER CARD</span><i></i></div>
+          <div class="demo-body"><div class="glowcard" style="flex:1"><div class="inner glass-2">
+            <div class="card-title">Conic light sweep</div>
+            <p class="card-sub">A rotating conic-gradient border energizes on hover.</p></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>STACKED GLASS</span><i></i></div>
+          <div class="demo-body"><div class="stack" style="flex:1">
+            <div class="l3 glass-1"></div><div class="l2 glass-1"></div>
+            <div class="card glass-2 rim"><div class="card-title">Layered panes</div>
+            <p class="card-sub">Sub-cards peek from beneath — depth without clutter.</p></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>AUTH CARD</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim spec spot auth" style="flex:1;max-width:250px">
+            <div class="a-logo">◈</div>
+            <div class="card-title" style="text-align:center">Welcome back</div>
+            <div class="input"><input type="email" placeholder="you@studio.dev" /></div>
+            <div class="input"><input type="password" placeholder="••••••••" /></div>
+            <button class="btn btn-primary" style="width:100%">Sign in</button>
+            <div class="oauth"><button class="btn">G</button><button class="btn">◆</button><button class="btn">𝕏</button></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SOCIAL POST</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim post" style="flex:1;max-width:260px">
+            <div class="p-head"><span class="avatar p2">N</span>
+              <div class="meta"><b style="font-size:13px">naruto</b><div class="muted tiny">2h · Kyoto</div></div>
+              <button class="btn btn-icon btn-sm">⋯</button></div>
+            <div class="p-media"></div>
+            <div class="p-actions"><span class="liked">♥ 402</span><span>◔ 38</span><span>↗ Share</span></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>CHART CARD</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim chart-card" style="flex:1">
+            <div class="card-title">Revenue<span class="tag glass-green" style="margin-left:auto">+24%</span></div>
+            <div class="chart"><svg viewBox="0 0 240 110" preserveAspectRatio="none">
+              <defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7c6cff" stop-opacity=".55"/><stop offset="100%" stop-color="#7c6cff" stop-opacity="0"/></linearGradient></defs>
+              <path d="M0,85 C30,80 45,55 70,60 C95,65 110,30 140,38 C170,46 190,20 240,15 L240,110 L0,110 Z" fill="url(#areaGrad)"/>
+              <path d="M0,85 C30,80 45,55 70,60 C95,65 110,30 140,38 C170,46 190,20 240,15" fill="none" stroke="#a99cff" stroke-width="2"/></svg></div>
+            <div class="muted tiny">Last 30 days · live area chart</div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>COUNTDOWN</span><i></i></div>
+          <div class="demo-body"><div class="countdown">
+            <div class="cd glass-1"><b>02</b><span>days</span></div>
+            <div class="cd glass-1"><b>14</b><span>hrs</span></div>
+            <div class="cd glass-1"><b>36</b><span>min</span></div>
+            <div class="cd glass-1 glass-pink"><b>09</b><span>sec</span></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>COMMENT</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 comment" style="flex:1;max-width:270px">
+            <div class="c-head"><span class="avatar sm p3">K</span><b>khoa.dev</b><span>3h</span>
+              <span class="badge glass-cyan" style="margin-left:auto">author</span></div>
+            <div class="c-body">The rim-light layer is what sells the glass. Without it the panes read as flat gray.</div>
+            <div class="p-actions" style="margin-top:8px"><span>♥ 24</span><span>Reply</span></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>MINI PLAYER</span><i></i></div>
+          <div class="demo-body"><div class="glass-2 rim" style="display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:var(--r-pill)">
+            <span class="avatar sm p1">♫</span>
+            <div style="min-width:0"><b style="font-size:12.5px;display:block">Prism</b><span class="muted tiny">Aurora Glass OST</span></div>
+            <div class="wave" style="height:18px"><i style="height:40%"></i><i style="height:85%"></i><i style="height:60%"></i><i style="height:30%"></i></div>
+            <button class="btn btn-icon btn-sm">▶</button></div></div></div>
+      </div>
+    </section>
+
+    <!-- ====================================================== NAVIGATION -->
+    <section class="section" id="navigation">
+      <div class="section-head"><h2 class="h1">Navigation</h2><span class="count"></span></div>
+      <p class="section-sub">The layer Liquid Glass was built for — floating above the content.</p>
+
+      <div class="demo-grid">
+        <div class="demo"><div class="demo-num"><span>TOP NAVBAR</span><i></i></div>
+          <div class="demo-body col"><div class="glass-3 rim" style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:var(--r-pill)">
+            <span class="avatar sm">◈</span>
+            <a style="font-weight:700;font-size:13.5px">Studio</a>
+            <span style="flex:1"></span>
+            <a class="muted" style="font-size:12.5px">Work</a><a class="muted" style="font-size:12.5px">Lab</a>
+            <button class="btn btn-sm btn-primary">Hire us</button></div>
+            <span class="muted tiny">Same component as the live nav floating above this page ↑</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SIDEBAR RAIL</span><i></i></div>
+          <div class="demo-body col"><div class="glass-2" style="border-radius:var(--r-md);padding:10px;display:flex;flex-direction:column;gap:2px">
+            <a class="rail a" style="display:flex;gap:9px;padding:7px 10px;border-radius:9px;color:var(--ink-2);font-size:13px;background:rgba(124,108,255,.2);box-shadow:inset 2px 0 0 var(--a-indigo)">◈ Overview</a>
+            <a style="display:flex;gap:9px;padding:7px 10px;border-radius:9px;color:var(--ink-3);font-size:13px">◐ Analytics</a>
+            <a style="display:flex;gap:9px;padding:7px 10px;border-radius:9px;color:var(--ink-3);font-size:13px">◍ Reports</a>
+            <a style="display:flex;gap:9px;padding:7px 10px;border-radius:9px;color:var(--ink-3);font-size:13px">⚙ Settings</a></div>
+            <span class="muted tiny">Live version: the rail on the left of this page</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TABS · PILL</span><i></i></div>
+          <div class="demo-body col"><div class="tabs glass-1" data-tabs>
+            <button class="on">Preview</button><button>Code</button><button>Props</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TABS · LINE</span><i></i></div>
+          <div class="demo-body col"><div class="tabs-line" data-tabs>
+            <button class="on">Activity</button><button>Comments</button><button>Files</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BREADCRUMB</span><i></i></div>
+          <div class="demo-body"><div class="crumbs glass-1" style="padding:8px 12px;border-radius:var(--r-pill)">
+            <a>Library</a><span class="sep">›</span><a>Navigation</a><span class="sep">›</span><span class="now">Breadcrumb</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>PAGINATION</span><i></i></div>
+          <div class="demo-body"><div class="pager glass-1" style="padding:6px;border-radius:var(--r-md)">
+            <a>‹</a><a class="on">1</a><a>2</a><a>3</a><a>…</a><a>9</a><a>›</a></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>WIZARD STEPS</span><i></i></div>
+          <div class="demo-body"><div class="wizard">
+            <div class="wstep done"><span class="dot">✓</span>Theme</div><span class="link done"></span>
+            <div class="wstep now"><span class="dot">2</span>Layout</div><span class="link"></span>
+            <div class="wstep"><span class="dot">3</span>Ship</div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BOTTOM BAR</span><i></i></div>
+          <div class="demo-body col"><div class="bottombar glass-3 rim">
+            <a class="on"><i>◈</i>Home</a><a><i>◐</i>Explore</a><a><i>♡</i>Saved</a><a><i>☺</i>You</a></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>DOCK</span><i></i></div>
+          <div class="demo-body"><div class="dock glass-3 rim">
+            <span class="app glass-indigo">◈</span><span class="app glass-cyan">◐</span>
+            <span class="app glass-pink">♫</span><span class="app glass-amber">✦</span>
+            <span class="app glass-green">✓</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>DROPDOWN MENU</span><i></i></div>
+          <div class="demo-body"><div class="menu glass-3" style="flex:1">
+            <a>✎ Edit<span class="sc">⌘E</span></a>
+            <a>⧉ Duplicate<span class="sc">⌘D</span></a>
+            <div class="msep"></div>
+            <a>↗ Share…</a>
+            <a class="danger">🗑 Delete<span class="sc">⌫</span></a></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TREE VIEW</span><i></i></div>
+          <div class="demo-body col"><div class="tree glass-1" style="padding:10px;border-radius:var(--r-md)">
+            <details open><summary>components/</summary>
+              <details open><summary>actions/</summary>
+                <span class="leaf on">button.css</span><span class="leaf">fab.css</span></details>
+              <details><summary>inputs/</summary>
+                <span class="leaf">field.css</span></details></details>
+            <details><summary>docs/</summary><span class="leaf">spec.md</span></details></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>APP SWITCHER</span><i></i></div>
+          <div class="demo-body"><div class="apps" style="width:210px">
+            <div class="a-icon shape-frame squircle-frame"><div class="glass-2" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">◈</div></div>
+            <div class="a-icon shape-frame squircle-frame"><div class="glass-2 glass-cyan" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">◐</div></div>
+            <div class="a-icon shape-frame squircle-frame"><div class="glass-2 glass-pink" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">♫</div></div>
+            <div class="a-icon shape-frame squircle-frame"><div class="glass-2 glass-amber" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">✉</div></div>
+            <div class="a-icon shape-frame squircle-frame"><div class="glass-2" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">⚙</div></div>
+            <div class="a-icon shape-frame squircle-frame"><div class="glass-2 glass-green" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">✓</div></div>
+            <div class="a-icon shape-frame squircle-frame"><div class="glass-2 glass-red" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">✕</div></div>
+            <div class="a-icon shape-frame squircle-frame"><div class="glass-2" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">⋯</div></div>
+          </div><span class="muted tiny">Squircle icons — the iOS silhouette</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>MENU BAR</span><i></i></div>
+          <div class="demo-body"><nav class="menubar glass-2">
+            <a class="on">File</a><a>Edit</a><a>View</a><a>Go</a><a>Help</a></nav></div></div>
+
+        <div class="demo"><div class="demo-num"><span>ANCHOR DOTS</span><i></i></div>
+          <div class="demo-body"><nav class="dotnav">
+            <a class="on" title="Hero"></a><a title="Work"></a><a title="About"></a><a title="Contact"></a></nav>
+            <span class="muted tiny">Side-scroll waypoint dots</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SPEED DIAL</span><i></i></div>
+          <div class="demo-body"><div class="speed">
+            <div class="s-actions"><button class="fab">✎</button><button class="fab">↗</button><button class="fab">★</button></div>
+            <button class="fab glass-indigo">＋</button></div>
+            <span class="muted tiny">Hover — staggered radial FAB</span></div></div>
+      </div>
+    </section>
+
+    <!-- ====================================================== OVERLAYS -->
+    <section class="section" id="overlays">
+      <div class="section-head"><h2 class="h1">Overlays</h2><span class="count"></span></div>
+      <p class="section-sub">The floating layer — thickest glass, deepest blur. Every demo triggers live.</p>
+
+      <div class="demo-grid">
+        <div class="demo"><div class="demo-num"><span>MODAL</span><i></i></div>
+          <div class="demo-body"><button class="btn" data-open="modal-1">Open modal</button>
+            <button class="btn btn-primary" data-open="modal-confirm">Open confirm</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>DRAWER</span><i></i></div>
+          <div class="demo-body"><button class="btn" data-open="drawer-1">Open drawer →</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BOTTOM SHEET</span><i></i></div>
+          <div class="demo-body"><button class="btn" data-open="sheet-1">Open sheet ↑</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>POPOVER</span><i></i></div>
+          <div class="demo-body" style="padding-top:56px;position:relative">
+            <div class="pop glass-3" style="bottom:calc(100% - 40px);left:0;position:absolute"><span class="p-arrow"></span>
+              Popovers ride on Level-3 glass — they stay readable over any content.</div>
+            <button class="btn btn-sm">Anchored element</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TOOLTIP</span><i></i></div>
+          <div class="demo-body"><span class="tip"><button class="btn btn-ghost">Hover me</button>
+            <span class="bubble">backdrop-filter: blur(16px)</span></span>
+          <span class="tip"><button class="btn btn-icon">?</button>
+            <span class="bubble">Specular rim on top edge only</span></span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TOASTS</span><i></i></div>
+          <div class="demo-body">
+            <button class="btn btn-sm glass-green" data-toast="ok">Success</button>
+            <button class="btn btn-sm glass-amber" data-toast="warn">Warning</button>
+            <button class="btn btn-sm glass-red" data-toast="err">Error</button>
+            <button class="btn btn-sm glass-cyan" data-toast="info">Info</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>CONTEXT MENU</span><i></i></div>
+          <div class="demo-body"><button class="btn" id="ctx-btn">Right-click me (or click)</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>LIGHTBOX</span><i></i></div>
+          <div class="demo-body"><button class="btn" data-open="lightbox-1">Open media viewer</button></div></div>
+
+        <div class="demo"><div class="demo-num"><span>HUD</span><i></i></div>
+          <div class="demo-body"><button class="btn" data-open="hud-1">Trigger HUD</button>
+            <span class="muted tiny">Center-screen transient feedback</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>COACH MARK</span><i></i></div>
+          <div class="demo-body"><div class="coach glass-3 spec">
+            <b>New: refractive edges</b>Edged glass now bends the backdrop — try the blur ramp in Effects.</div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>COMMAND PALETTE</span><i></i></div>
+          <div class="demo-body"><button class="btn" id="palette-btn-2">⌘K — Open palette</button>
+            <span class="muted tiny">Or press Ctrl+K anywhere</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TOUR STEP</span><i></i></div>
+          <div class="demo-body"><div class="coach glass-3">
+            <b>2 of 5 — The specular layer</b>
+            <span class="muted" style="font-size:12px">Sharp top sheen, masked to 42% height.</span>
+            <div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-sm btn-primary">Next</button><button class="btn btn-sm btn-ghost">Skip</button></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SNACKBAR · TIMED</span><i></i></div>
+          <div class="demo-body"><div class="snack toast glass-3 rim" style="position:static">
+            <span class="t-ic glass-indigo">⇩</span>
+            <div class="t-body"><b>Downloading…</b><span>aurora-glass-2.1.zip · 4s left</span></div>
+            <button class="btn btn-sm">Cancel</button>
+            <span class="s-prog"></span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>HOVER CARD</span><i></i></div>
+          <div class="demo-body"><div class="pop glass-3 rim" style="position:static">
+            <div style="display:flex;gap:10px;align-items:center">
+              <span class="avatar p4">T</span>
+              <div><b style="font-size:13.5px">@thuy</b><div class="muted tiny">Design Engineer · 12.4k</div></div>
+              <button class="btn btn-sm btn-primary" style="margin-left:auto">Follow</button></div>
+            <p class="muted tiny" style="margin-top:8px">Ships glass components. Rim light enthusiast.</p></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>PROGRESS TOAST</span><i></i></div>
+          <div class="demo-body"><div class="toast glass-3 rim" style="position:static">
+            <span class="t-ic glass-green"><span class="conic-spin" style="width:16px;height:16px"></span></span>
+            <div class="t-body"><b>Deploying build #241</b><span>glass-kit · 68% — do not close</span></div>
+            <span class="s-prog"></span></div>
+            <span class="muted tiny">Toast + draining progress bar</span></div></div>
+      </div>
+    </section>
+
+    <!-- ====================================================== DATA -->
+    <section class="section" id="data">
+      <div class="section-head"><h2 class="h1">Data display</h2><span class="count"></span></div>
+      <p class="section-sub">Tables, timelines, charts and loaders — content sits sharp on the blur.</p>
+
+      <div class="demo-grid wide">
+        <div class="demo"><div class="demo-num"><span>TABLE</span><i></i></div>
+          <div class="demo-body col"><div class="card glass-2" style="padding:6px 4px">
+            <table class="table"><thead><tr><th>Component</th><th>Blur</th><th class="num">Score</th></tr></thead>
+            <tbody>
+              <tr><td>Modal</td><td>36px</td><td class="num">9.8</td></tr>
+              <tr><td>Navbar</td><td>36px</td><td class="num">9.6</td></tr>
+              <tr><td>Card</td><td>22px</td><td class="num">9.4</td></tr>
+              <tr><td>Button</td><td>14px</td><td class="num">9.1</td></tr>
+            </tbody></table></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>ROWS LIST</span><i></i></div>
+          <div class="demo-body col"><div class="card glass-2" style="padding:6px">
+            <div class="rows">
+              <div class="row"><span class="avatar sm p1">T</span><div><b style="font-size:13.5px">Thanh Hà</b><div class="tiny muted">Sent you a pane</div></div><span class="glow">›</span></div>
+              <div class="row"><span class="avatar sm p2">D</span><div><b style="font-size:13.5px">Duy Khang</b><div class="tiny muted">Approved PR #42</div></div><span class="glow">›</span></div>
+              <div class="row"><span class="avatar sm p3">L</span><div><b style="font-size:13.5px">Linh Chi</b><div class="tiny muted">Commented on Specular</div></div><span class="glow">›</span></div>
+            </div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TIMELINE</span><i></i></div>
+          <div class="demo-body col"><div class="timeline">
+            <div class="tl-item"><div class="tl-t">Blur shipped</div><div class="tl-d">backdrop-filter baseline</div><div class="tl-time">2020</div></div>
+            <div class="tl-item"><div class="tl-t">Glassmorphism named</div><div class="tl-d">Malewicz coins the style</div><div class="tl-time">2021</div></div>
+            <div class="tl-item"><div class="tl-t">Liquid Glass</div><div class="tl-d">Apple unifies platforms</div><div class="tl-time">2025</div></div>
+          </div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>AVATARS</span><i></i></div>
+          <div class="demo-body"><span class="avatar">NU</span><span class="avatar p1">TH</span><span class="avatar p2">DK</span>
+            <span class="avatar lg p3">LC</span><span class="avatar sm p4">◈</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>AVATAR STACK + PRESENCE</span><i></i></div>
+          <div class="demo-body"><span class="avatar-stack">
+            <span class="avatar">N</span><span class="avatar p1">T</span><span class="avatar p2">D</span><span class="avatar p3">+4</span></span>
+            <span class="avatar-wrap"><span class="avatar p4">L</span><span class="presence busy"></span></span>
+            <span class="avatar-wrap"><span class="avatar p2">K</span><span class="presence away"></span></span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BADGES</span><i></i></div>
+          <div class="demo-body"><span class="badge glass-green"><span class="b-dot"></span>Stable</span>
+            <span class="badge glass-amber"><span class="b-dot"></span>Beta</span>
+            <span class="badge glass-1">v3.1</span>
+            <span class="badge-anchor"><button class="btn btn-icon">🔔</button><span class="badge-num">7</span></span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>PROGRESS BARS</span><i></i></div>
+          <div class="demo-body col">
+            <div class="prog-row"><div class="pr-head"><span>Refraction</span><b>82%</b></div><div class="prog"><div class="bar" style="width:82%"></div></div></div>
+            <div class="prog-row"><div class="pr-head"><span>Specular</span><b>64%</b></div><div class="prog"><div class="bar" style="width:64%"></div></div></div>
+            <div class="prog-row"><div class="pr-head"><span>Grain</span><b>35%</b></div><div class="prog"><div class="bar" style="width:35%"></div></div></div>
+          </div></div>
+
+        <div class="demo"><div class="demo-num"><span>PROGRESS RING</span><i></i></div>
+          <div class="demo-body"><div class="ring">
+            <svg width="90" height="90"><circle class="trk" cx="45" cy="45" r="38" fill="none" stroke-width="8"/>
+            <circle class="val" cx="45" cy="45" r="38" fill="none" stroke-width="8" stroke-dasharray="238.7" stroke-dashoffset="52"/></svg>
+            <div class="num">78<small>GLASS</small></div></div>
+          <div class="ring">
+            <svg width="90" height="90"><circle class="trk" cx="45" cy="45" r="38" fill="none" stroke-width="8"/>
+            <circle class="val" cx="45" cy="45" r="38" fill="none" stroke-width="8" stroke-dasharray="238.7" stroke-dashoffset="130" style="stroke:#4fe3a3;filter:drop-shadow(0 0 6px rgba(79,227,163,.7))"/></svg>
+            <div class="num">45<small>DEPTH</small></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SKELETON</span><i></i></div>
+          <div class="demo-body col"><div style="display:flex;gap:12px;align-items:center">
+            <div class="skel circle" style="width:44px;height:44px"></div>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px"><div class="skel line w60"></div><div class="skel line w80"></div></div></div>
+            <div class="skel block"></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>ACCORDION</span><i></i></div>
+          <div class="demo-body col"><div class="card glass-2" style="padding:4px 14px"><div class="acc" data-acc>
+            <div class="a-item open"><button class="a-head">Why saturate() the blur?<span class="chev">⌄</span></button>
+              <div class="a-body"><p>Saturation between 140–200% keeps colors glowing through the frost instead of washing to gray.</p></div></div>
+            <div class="a-item"><button class="a-head">How much blur?<span class="chev">⌄</span></button>
+              <div class="a-body"><p>14px for controls, 22px for surfaces, 36px for the floating layer.</p></div></div>
+            <div class="a-item"><button class="a-head">Glass on glass?<span class="chev">⌄</span></button>
+              <div class="a-body"><p>Avoid it — Apple's guidance: separate stacked elements with fills, not more panes.</p></div></div>
+          </div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>CALENDAR</span><i></i></div>
+          <div class="demo-body col"><div class="card glass-2" style="padding:16px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:10px"><b style="font-size:13px">September 2026</b><span class="muted tiny">‹ ›</span></div>
+            <div class="cal">
+              <span class="dow">M</span><span class="dow">T</span><span class="dow">W</span><span class="dow">T</span><span class="dow">F</span><span class="dow">S</span><span class="dow">S</span>
+              <span class="day dim">31</span><span class="day">1</span><span class="day">2</span><span class="day">3</span><span class="day has">4</span><span class="day">5</span><span class="day">6</span>
+              <span class="day">7</span><span class="day">8</span><span class="day has">9</span><span class="day">10</span><span class="day">11</span><span class="day">12</span><span class="day">13</span>
+              <span class="day">14</span><span class="day">15</span><span class="day">16</span><span class="day">17</span><span class="day has">18</span><span class="day">19</span><span class="day">20</span>
+              <span class="day now">21</span><span class="day">22</span><span class="day">23</span><span class="day">24</span><span class="day">25</span><span class="day">26</span><span class="day">27</span>
+              <span class="day">28</span><span class="day">29</span><span class="day">30</span><span class="day dim">1</span><span class="day dim">2</span><span class="day dim">3</span><span class="day dim">4</span>
+            </div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SPARKLINE</span><i></i></div>
+          <div class="demo-body col"><div class="card glass-2" style="padding:18px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span class="tiny muted">Glass index / week</span><b class="mono" style="font-size:13px">+38%</b></div>
+            <div class="spark">
+              <div class="b" style="height:30%"></div><div class="b" style="height:52%"></div><div class="b" style="height:41%"></div>
+              <div class="b" style="height:66%"></div><div class="b" style="height:58%"></div><div class="b hot" style="height:88%"></div>
+              <div class="b" style="height:72%"></div><div class="b" style="height:95%"></div><div class="b" style="height:64%"></div>
+              <div class="b" style="height:80%"></div><div class="b" style="height:55%"></div><div class="b" style="height:70%"></div>
+            </div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>DONUT</span><i></i></div>
+          <div class="demo-body"><div class="donut">
+            <svg width="110" height="110"><circle cx="55" cy="55" r="44" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="11"/>
+            <circle cx="55" cy="55" r="44" fill="none" stroke="url(#donutGrad)" stroke-width="11" stroke-linecap="round"
+              stroke-dasharray="276.5" stroke-dashoffset="63" transform="rotate(-90 55 55)"/></svg>
+            <div class="num">77<small>OPACITY</small></div></div>
+            <div style="display:flex;flex-direction:column;gap:7px;font-size:12px">
+            <span><i style="color:#7c6cff">●</i> Tint 42%</span><span><i style="color:#ff6ec7">●</i> Blur 35%</span><span><i style="color:var(--ink-3)">●</i> Other</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>CODE BLOCK</span><i></i></div>
+          <div class="demo-body col"><div class="code glass-2">
+            <div class="c-head"><span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span>&nbsp;glass.css</div>
+            <pre><span class="k">.glass</span> {
+  <span class="f">backdrop-filter</span>: <span class="f">blur</span>(<span class="n">22px</span>) <span class="f">saturate</span>(<span class="n">170%</span>);
+  <span class="c">/* rim + specular + depth + elevation */</span>
+}</pre></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>KPI COUNTERS</span><i></i></div>
+          <div class="demo-body"><div class="kpi" style="flex:1"><div class="num grad-text" data-count="173">0</div><div class="lbl">Components</div></div>
+            <div class="kpi" style="flex:1"><div class="num grad-text" data-count="36">0</div><div class="lbl">Max blur px</div></div>
+            <div class="kpi" style="flex:1"><div class="num grad-text" data-count="190">0</div><div class="lbl">Saturate %</div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>EMPTY STATE</span><i></i></div>
+          <div class="demo-body col"><div class="card glass-2"><div class="empty">
+            <div class="e-ic glass-indigo">◌</div><b>No panes yet</b>
+            <p>Drop a glass surface here and it will frost the world behind it.</p>
+            <button class="btn btn-sm btn-primary">Create pane</button></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>RATING BARS</span><i></i></div>
+          <div class="demo-body col">
+            <div class="ratebar"><span>5★</span><div class="prog"><div class="bar" style="width:76%"></div></div><span>76</span></div>
+            <div class="ratebar"><span>4★</span><div class="prog"><div class="bar" style="width:18%"></div></div><span>18</span></div>
+            <div class="ratebar"><span>3★</span><div class="prog"><div class="bar" style="width:5%"></div></div><span>5</span></div>
+            <div class="ratebar"><span>2★</span><div class="prog"><div class="bar" style="width:1%"></div></div><span>1</span></div>
+          </div></div>
+
+        <div class="demo"><div class="demo-num"><span>MEDIA ROW</span><i></i></div>
+          <div class="demo-body col"><div class="card glass-2"><div class="media-row">
+            <span class="avatar lg p2">◐</span>
+            <div class="m-txt"><b>Nightly build 214</b><span>glass-kit · passed 3m ago</span></div>
+            <span class="badge glass-green" style="margin-left:auto">OK</span></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>COPY FIELD</span><i></i></div>
+          <div class="demo-body col"><div class="copybox glass-1">
+            <span class="grow">npm i aurora-glass</span>
+            <button class="btn btn-sm" data-copy>⧉ Copy</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>DESCRIPTION LIST</span><i></i></div>
+          <div class="demo-body"><dl class="dlist">
+            <dt>Version</dt><dd>2.1.0</dd>
+            <dt>License</dt><dd>MIT</dd>
+            <dt>Bundle</dt><dd>44 KB gzip</dd>
+            <dt>Deps</dt><dd>zero</dd></dl></div></div>
+
+        <div class="demo"><div class="demo-num"><span>DIFF STATS</span><i></i></div>
+          <div class="demo-body col"><span class="diff"><span class="add">+214</span><span class="del">−38</span>
+            <span class="bars"><i style="background:var(--a-green)"></i><i style="background:var(--a-green)"></i><i style="background:var(--a-green)"></i><i style="background:var(--a-green)"></i><i style="background:var(--a-red)"></i></span></span>
+            <span class="diff"><span class="add">+9</span><span class="del">−1</span>
+            <span class="bars"><i style="background:var(--a-green)"></i><i style="background:var(--a-red)"></i><i style="background:rgba(255,255,255,.15)"></i><i style="background:rgba(255,255,255,.15)"></i><i style="background:rgba(255,255,255,.15)"></i></span></span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>CHIP CLOUD</span><i></i></div>
+          <div class="demo-body"><div class="cloud" style="max-width:260px">
+            <span class="badge">glassmorphism</span><span class="badge glass-indigo">squircle</span>
+            <span class="badge glass-cyan">backdrop-filter</span><span class="badge glass-pink">blob</span>
+            <span class="badge glass-amber">rim-light</span><span class="badge glass-green">flutter</span>
+            <span class="badge">specular</span><span class="badge glass-red">grain</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>RANKED LIST</span><i></i></div>
+          <div class="demo-body"><div class="rank glass-1" style="flex:1;padding:6px;border-radius:var(--r-md)">
+            <div class="r-row"><span class="pos">1</span><span class="avatar sm p1">N</span>naruto<span class="pts">2,431</span></div>
+            <div class="r-row"><span class="pos">2</span><span class="avatar sm p2">K</span>khoa.dev<span class="pts">1,988</span></div>
+            <div class="r-row"><span class="pos">3</span><span class="avatar sm p3">T</span>thuy<span class="pts">1,504</span></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>STATUS LOG</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2" style="flex:1;padding:10px 14px">
+            <div style="display:flex;gap:9px;align-items:center;font-size:12px;padding:4px 0"><span class="status ok"><i></i>healthy</span><span class="mono muted tiny">deploy → edge-01</span></div>
+            <div style="display:flex;gap:9px;align-items:center;font-size:12px;padding:4px 0"><span class="status warn"><i></i>degraded</span><span class="mono muted tiny">p99 latency 412ms</span></div>
+            <div style="display:flex;gap:9px;align-items:center;font-size:12px;padding:4px 0"><span class="status info"><i></i>deploying</span><span class="mono muted tiny">build #241</span></div></div></div></div>
+      </div>
+    </section>
+
+    <!-- ====================================================== FEEDBACK -->
+    <section class="section" id="feedback">
+      <div class="section-head"><h2 class="h1">Feedback</h2><span class="count"></span></div>
+      <p class="section-sub">Alerts, loaders and status — tinted glass carries semantic color.</p>
+
+      <div class="demo-grid">
+        <div class="demo"><div class="demo-num"><span>ALERT · SUCCESS</span><i></i></div>
+          <div class="demo-body col"><div class="alert ok"><span class="a-ic">✓</span>
+            <div><b>Snapshot saved</b>Six optical layers serialized in 42ms.</div><button class="a-x">✕</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>ALERT · WARNING</span><i></i></div>
+          <div class="demo-body col"><div class="alert warn"><span class="a-ic">⚠</span>
+            <div><b>Backdrop overdraw</b>30+ glass elements may jank on low-end GPUs.</div><button class="a-x">✕</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>ALERT · ERROR</span><i></i></div>
+          <div class="demo-body col"><div class="alert err"><span class="a-ic">✕</span>
+            <div><b>Refraction failed</b>feDisplacementMap is Chromium-only — Safari fell back.</div><button class="a-x">✕</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>ALERT · INFO</span><i></i></div>
+          <div class="demo-body col"><div class="alert info"><span class="a-ic">ⓘ</span>
+            <div><b>Safari 18+ unprefixed</b>-webkit-backdrop-filter kept for older engines.</div><button class="a-x">✕</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BANNER</span><i></i></div>
+          <div class="demo-body"><div class="banner">✦ Liquid Glass v2 is live <a>Read the notes →</a></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SPINNERS</span><i></i></div>
+          <div class="demo-body"><span class="spinner sm"></span><span class="spinner"></span><span class="spinner lg"></span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>DOT LOADER</span><i></i></div>
+          <div class="demo-body"><span class="dots"><i></i><i></i><i></i></span>
+            <span class="muted tiny">Typing indicator scale</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>ORBIT LOADER</span><i></i></div>
+          <div class="demo-body"><span class="orbit"><span class="core"></span><span class="sat"></span></span>
+            <span class="muted tiny">Satellite around a glass core</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>STATUS PILLS</span><i></i></div>
+          <div class="demo-body"><span class="status glass-1 live"><span class="pulse"></span>Live</span>
+            <span class="status glass-1 off"><span class="pulse"></span>Idle</span>
+            <span class="status glass-1 busy"><span class="pulse"></span>Rendering</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>NOTIFICATION ITEM</span><i></i></div>
+          <div class="demo-body col"><div class="card glass-2" style="padding:5px">
+            <div class="note-item unread"><span class="avatar sm p1">◈</span>
+              <div class="n-body"><b>Aurora Glass</b> pushed 12 new components to <b>main</b></div><span class="n-time">2m</span></div>
+            <div class="note-item"><span class="avatar sm p4">L</span>
+              <div class="n-body"><b>Lens Lab</b> commented: "the rim light is perfect"</div><span class="n-time">1h</span></div>
+          </div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SKELETON CARD</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 skel-card" style="flex:1">
+            <div class="skel" style="height:80px;border-radius:var(--r-md)"></div>
+            <div style="display:flex;gap:10px;align-items:center"><div class="skel" style="width:34px;height:34px;border-radius:50%"></div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:6px"><div class="skel" style="height:10px"></div><div class="skel" style="height:10px;width:60%"></div></div></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>RETRY STATE</span><i></i></div>
+          <div class="demo-body"><div class="retry card glass-2" style="flex:1">
+            <div class="r-ic glass-red">↻</div>
+            <b style="font-size:13.5px">Sync failed</b>
+            <span class="muted tiny">Check connection and try again</span>
+            <button class="btn btn-sm btn-primary">Retry</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>INLINE BANNER</span><i></i></div>
+          <div class="demo-body"><div class="inline-banner" style="flex:1">
+            <span class="t-ic glass-cyan">✦</span>
+            <div><b style="font-size:13px">New — squircle shapes</b>
+              <div class="muted tiny">20 organic silhouettes shipped</div></div>
+            <button class="btn btn-sm" style="margin-left:auto">Try</button></div></div></div>
+      </div>
+    </section>
+
+    <!-- ====================================================== SHAPES -->
+    <section class="section" id="shapes">
+      <div class="section-head"><h2 class="h1">Shapes</h2><span class="count"></span></div>
+      <p class="section-sub">Glass doesn't have to be a rounded rectangle — squircles, morphing blobs, tickets, scallops, bubbles and gooey metaballs. Blur, rim and specular all follow the silhouette.</p>
+
+      <div class="demo-grid">
+        <div class="demo"><div class="demo-num"><span>SQUIRCLE</span><i></i></div>
+          <div class="demo-body"><div class="shape-frame squircle-frame" style="width:130px;height:130px">
+            <div class="shape-squircle glass-2 spec" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px">
+              <b style="font-size:22px">◈</b><span class="tiny muted">iOS curve</span></div></div>
+            <span class="muted tiny">Continuous curvature — clip-path now, corner-shape when Chrome ships it</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>MORPHING BLOB</span><i></i></div>
+          <div class="demo-body"><div class="shape-blob glass-2 rim spec" style="width:130px;height:110px;display:flex;align-items:center;justify-content:center">
+            <b>●</b></div><span class="muted tiny">8-value border-radius keyframes</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BLOB AVATARS</span><i></i></div>
+          <div class="demo-body"><span class="blob-avatar" style="width:44px;height:44px;background:linear-gradient(140deg,#7c6cff,#54d9ff)">N</span>
+            <span class="blob-avatar" style="width:44px;height:44px;border-radius:40% 60% 36% 64%/60% 30% 70% 40%;background:linear-gradient(140deg,#ff6ec7,#ffb85c)">K</span>
+            <span class="blob-avatar" style="width:44px;height:44px;border-radius:55% 45% 64% 36%/36% 64% 45% 55%;background:linear-gradient(140deg,#4fe3a3,#54d9ff)">T</span>
+            <span class="muted tiny">Same math, frozen at different phases</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TICKET</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim shape-ticket" style="flex:1;max-width:250px;padding:14px 18px">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div><b style="font-size:14px">Aurora Fest</b><div class="muted tiny">Sat · 20:00 · Gate 4</div></div>
+              <span class="mono" style="font-size:16px;font-weight:800;color:var(--a-cyan)">A-12</span></div>
+            <div style="border-top:1px dashed rgba(255,255,255,.25);margin:10px 0 8px"></div>
+            <span class="muted tiny">Punched side notches via mask</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SCOOPED CORNERS</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 shape-scoop" style="flex:1;max-width:230px">
+            <div class="card-title">Coupon</div>
+            <p class="card-sub">Concave cutouts — radial-gradient masks at all four corners.</p>
+            <span class="badge glass-amber">GLASS-20</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SPEECH BUBBLES</span><i></i></div>
+          <div class="demo-body col"><div class="bubble-chat glass-2 rim">the rim light is <i>chef's kiss</i> ✨<span class="tail"></span></div>
+            <div class="bubble-chat right glass-cyan rim">agreed — six layers or nothing<span class="tail"></span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SCALLOPED EDGE</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 shape-scallop" style="flex:1;max-width:220px;padding-bottom:20px">
+            <div class="card-title">Receipt</div>
+            <div class="mono tiny" style="color:var(--ink-3)">GLASS KIT — $0.00<br>EDGE DETAIL — free<br>RIM LIGHT — priceless</div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>WAVE EDGE</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 shape-wave" style="flex:1;max-width:220px">
+            <div class="card-title">Wavy footer</div>
+            <p class="card-sub">clip-path url(#clip-wave) — scales to any size.</p>
+            <div style="height:18px"></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>HEXAGON</span><i></i></div>
+          <div class="demo-body"><div class="shape-frame bevel-frame" style="padding:0;clip-path:polygon(50% 0,96% 25%,96% 75%,50% 100%,4% 75%,4% 25%);width:110px;height:110px">
+            <div class="shape-hex glass-2 spec" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column">
+              <b style="font-size:20px">⬡</b><span class="tiny muted">node</span></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SPARKLE</span><i></i></div>
+          <div class="demo-body"><div class="shape-sparkle twinkle glass-amber" style="width:86px;height:86px;display:flex;align-items:center;justify-content:center;font-size:0"></div>
+            <div class="shape-sparkle glass-cyan" style="width:44px;height:44px"></div>
+            <span class="muted tiny">4-point star · polygon clip</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SHIELD</span><i></i></div>
+          <div class="demo-body"><div class="shape-shield glass-2 glass-green" style="width:92px;height:104px;display:flex;align-items:center;justify-content:center;padding-top:14px;font-size:26px">✓</div>
+            <span class="muted tiny">Verified / protected badge</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>MAP PIN</span><i></i></div>
+          <div class="demo-body"><div class="shape-pin glass-pink" style="width:66px;height:86px;display:flex;align-items:flex-start;justify-content:center;padding-top:16px">
+            <span style="width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 0 10px #fff"></span></div>
+            <span class="muted tiny">One svg path, any size</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>CRESCENT</span><i></i></div>
+          <div class="demo-body"><div class="shape-crescent glass-2" style="width:96px;height:96px"></div>
+            <span class="muted tiny">Even-odd path cutout</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>FOLDER</span><i></i></div>
+          <div class="demo-body"><div class="shape-folder glass-2" style="width:130px;height:88px;display:flex;align-items:flex-end;padding:10px 14px">
+            <div><b style="font-size:12.5px">components/</b><div class="muted tiny">24 items</div></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>PRICE TAG</span><i></i></div>
+          <div class="demo-body"><div class="shape-tag glass-amber" style="width:130px;height:60px;display:flex;align-items:center;padding:0 14px;gap:8px">
+            <b class="mono">$29</b><span class="tiny">/ forever</span></div>
+            <span class="muted tiny">Hole punched via clip-rule evenodd</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>LEAF / PETAL</span><i></i></div>
+          <div class="demo-body"><div class="shape-leaf glass-2 glass-green rim" style="width:84px;height:84px"></div>
+            <div class="shape-leaf flip glass-2 glass-cyan rim" style="width:64px;height:64px"></div>
+            <span class="muted tiny">Opposite-corner radius trick</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>BEVEL</span><i></i></div>
+          <div class="demo-body"><div class="shape-frame bevel-frame" style="width:140px">
+            <div class="shape-bevel glass-2 spec" style="padding:16px;text-align:center">
+              <b style="font-size:13px">CYBER-CARD</b><div class="muted tiny">chamfered tech edge</div></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>RIBBONS</span><i></i></div>
+          <div class="demo-body col"><span class="ribbon glass-indigo" style="align-self:flex-start">FEATURED</span>
+            <span class="ribbon-vert glass-pink" style="padding:14px 16px 24px;font-size:11px;font-weight:800;writing-mode:vertical-rl">NEW</span>
+            <span class="muted tiny">Flag + bookmark silhouettes</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>STICKER · PEEL</span><i></i></div>
+          <div class="demo-body"><div class="sticker card glass-2 rim" style="width:130px;text-align:center">
+            <b style="font-size:22px">◈</b><div class="tiny" style="font-weight:700">v2.1</div></div>
+            <span class="muted tiny">Peeling corner + slight tilt</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>GOOEY LOADER</span><i></i></div>
+          <div class="demo-body"><div class="gooey">
+            <i style="--d:0s"></i><i style="--d:.14s"></i><i style="--d:.28s"></i><i style="--d:.42s"></i></div>
+            <span class="muted tiny">feGaussianBlur + contrast threshold</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>CIRCULAR TEXT</span><i></i></div>
+          <div class="demo-body"><div class="arc-text">
+            <svg viewBox="0 0 120 120"><defs><path id="arcPath" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0"/></defs>
+              <text style="font-size:10.5px;letter-spacing:3px;fill:rgba(255,255,255,.65);font-weight:700">
+                <textPath href="#arcPath">GLASS·IS·NOT·A·SHAPE·GLASS·IS·AN·OPTIC·</textPath></text></svg>
+            <div class="core glass-2 rim"><b>◈</b></div></div></div></div>
+      </div>
+    </section>
+
+    <!-- ====================================================== EFFECTS -->
+    <section class="section" id="effects">
+      <div class="section-head"><h2 class="h1">Effects &amp; layout</h2><span class="count"></span></div>
+      <p class="section-sub">The material itself — elevations, tints, blur ramp, refraction and motion.</p>
+
+      <div class="demo-grid">
+        <div class="demo"><div class="demo-num"><span>ELEVATION RAMP</span><i></i></div>
+          <div class="demo-body">
+            <div class="glass-1" style="border-radius:var(--r-md);padding:16px 20px;font-size:12px;font-weight:700">L1 · control</div>
+            <div class="glass-2" style="border-radius:var(--r-md);padding:16px 20px;font-size:12px;font-weight:700">L2 · surface</div>
+            <div class="glass-3" style="border-radius:var(--r-md);padding:16px 20px;font-size:12px;font-weight:700">L3 · floating</div>
+          </div></div>
+
+        <div class="demo"><div class="demo-num"><span>TINT RAMP</span><i></i></div>
+          <div class="demo-body">
+            <div class="glass-1 glass-indigo" style="border-radius:var(--r-md);padding:15px 16px;font-size:11px;font-weight:700">indigo</div>
+            <div class="glass-1 glass-cyan" style="border-radius:var(--r-md);padding:15px 16px;font-size:11px;font-weight:700">cyan</div>
+            <div class="glass-1 glass-pink" style="border-radius:var(--r-md);padding:15px 16px;font-size:11px;font-weight:700">pink</div>
+            <div class="glass-1 glass-amber" style="border-radius:var(--r-md);padding:15px 16px;font-size:11px;font-weight:700">amber</div>
+            <div class="glass-1 glass-green" style="border-radius:var(--r-md);padding:15px 16px;font-size:11px;font-weight:700">green</div>
+          </div></div>
+
+        <div class="demo"><div class="demo-num"><span>BLUR RAMP</span><i></i></div>
+          <div class="demo-body col"><div class="blur-ramp">
+            <div class="tile b1">blur(4)</div><div class="tile b2">blur(12)</div>
+            <div class="tile b3">blur(22)</div><div class="tile b4">blur(36)</div></div>
+            <span class="muted tiny">Hover the page edges — the orbs behind sharpen the ramp</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>REFRACTION · CHROMIUM</span><i></i></div>
+          <div class="demo-body"><div class="glass-2 glass-refract" style="border-radius:var(--r-md);padding:18px 22px;font-weight:700">
+            lens-distorted edges</div>
+            <span class="muted tiny">feDisplacementMap bends the backdrop (falls back to blur elsewhere)</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SPOTLIGHT CARD</span><i></i></div>
+          <div class="demo-body col"><div class="card glass-2 rim spot">
+            <div class="card-title">Cursor-tracked glare</div>
+            <p class="card-sub">A radial light follows your pointer across the pane — try it.</p></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>TILT CARD</span><i></i></div>
+          <div class="demo-body col"><div class="card glass-2 rim tilt" data-tilt>
+            <div class="card-title">3D tilt</div>
+            <p class="card-sub">Perspective + spring return. Glass flexes like a lens.</p></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>DIVIDERS</span><i></i></div>
+          <div class="demo-body col"><hr class="divider" />
+            <div class="divider-txt">Or continue with</div>
+            <div style="display:flex;gap:14px;align-items:center;justify-content:center;height:44px">
+              <span>Light</span><span class="divider-v"></span><span>Dark</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>MARQUEE</span><i></i></div>
+          <div class="demo-body col"><div class="marquee glass-1" style="padding:2px 8px"><div class="track">
+            <span class="chip glass-indigo">blur</span><span class="chip glass-cyan">saturate</span><span class="chip glass-pink">rim</span>
+            <span class="chip glass-amber">specular</span><span class="chip glass-green">depth</span><span class="chip glass-1">elevation</span>
+            <span class="chip glass-indigo">blur</span><span class="chip glass-cyan">saturate</span><span class="chip glass-pink">rim</span>
+            <span class="chip glass-amber">specular</span><span class="chip glass-green">depth</span><span class="chip glass-1">elevation</span>
+          </div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>FROSTED THUMB</span><i></i></div>
+          <div class="demo-body col"><div class="frost"><div class="bg"></div><div class="fg">Image under frost</div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>DROPZONE</span><i></i></div>
+          <div class="demo-body col"><div class="dropzone"><span class="dz-ic">⤒</span>
+            <b style="color:var(--ink)">Drop assets</b><span>PNG, SVG, WAV — 50MB max</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>GAUGE</span><i></i></div>
+          <div class="demo-body"><div class="gauge">
+            <svg viewBox="0 0 150 84"><path d="M15 75 A60 60 0 0 1 135 75" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="12" stroke-linecap="round"/>
+            <path d="M15 75 A60 60 0 0 1 135 75" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="60"/></svg>
+            <div class="g-num">68<small>LUX</small></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>DEVICE FRAME</span><i></i></div>
+          <div class="demo-body"><div class="device glass-3"><div class="screen">
+            <div class="notch"></div>
+            <div class="d-body">
+              <div class="card glass-2" style="padding:12px;gap:5px"><b style="font-size:12px">Glass on glass —</b>
+                <span style="font-size:10px;color:var(--ink-3)">permitted inside a screen mock.</span></div>
+              <div class="prog"><div class="bar" style="width:60%"></div></div>
+              <div style="margin-top:auto" class="bottombar glass-3"><a class="on"><i>◈</i></a><a><i>◐</i></a><a><i>☺</i></a></div>
+            </div></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>CAROUSEL</span><i></i></div>
+          <div class="demo-body col"><div class="carousel">
+            <div class="slide glass-indigo">Slide one</div>
+            <div class="slide glass-cyan">Slide two</div>
+            <div class="slide glass-pink">Slide three</div>
+            <div class="slide glass-green">Slide four</div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SCROLL INDICATOR</span><i></i></div>
+          <div class="demo-body"><div class="scroll-ind"></div><span class="muted tiny">Animated wheel cue</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>GRADIENT TEXT</span><i></i></div>
+          <div class="demo-body"><span class="grad-text" style="font-size:27px;font-weight:800;letter-spacing:-0.02em">Chromatic type</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>SCROLL REVEAL</span><i></i></div>
+          <div class="demo-body"><div class="card glass-2 rim" style="flex:1">
+            <div class="card-title">I revealed myself</div>
+            <p class="card-sub">Every card on this page fades up via IntersectionObserver.</p></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>GLASS TOOLBAR</span><i></i></div>
+          <div class="demo-body"><div class="glass-3 rim" style="display:flex;gap:4px;padding:6px;border-radius:var(--r-md)">
+            <button class="btn btn-icon">B</button><button class="btn btn-icon"><i>I</i></button><button class="btn btn-icon"><u>U</u></button>
+            <span class="divider-v"></span>
+            <button class="btn btn-icon">◱</button><button class="btn btn-icon">⌗</button><button class="btn btn-icon">🔗</button></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>MESH GRADIENT</span><i></i></div>
+          <div class="demo-body"><div class="card mesh rim" style="flex:1;min-height:110px;justify-content:flex-end">
+            <b style="font-size:14px">Baked aurora</b><span class="muted tiny">4 stacked radial gradients</span></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>CONIC SPINNER</span><i></i></div>
+          <div class="demo-body"><span class="conic-spin"></span>
+            <span class="conic-spin" style="width:22px;height:22px"></span>
+            <span class="conic-spin" style="width:48px;height:48px"></span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>WAVE LOADER</span><i></i></div>
+          <div class="demo-body"><div class="waveload"><div class="w"></div><div class="w w2"></div></div>
+            <span class="muted tiny">Rolling liquid — rotate + drift</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>NEON TEXT</span><i></i></div>
+          <div class="demo-body"><span class="neon">AURORA</span>
+            <span class="neon" style="text-shadow:0 0 8px rgba(255,110,199,.9),0 0 24px rgba(255,110,199,.6),0 0 60px rgba(255,110,199,.8)">GLASS</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>FROSTED EDGE</span><i></i></div>
+          <div class="demo-body"><div class="frost-edge card glass-1" style="flex:1;min-height:100px;padding:14px">
+            <b style="font-size:13px">Scroll content behind</b>
+            <p class="muted tiny">The bottom edge melts into the wallpaper — blur masked by a fade.</p>
+            <div class="fe-mask"></div></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>ORBIT BADGE</span><i></i></div>
+          <div class="demo-body"><div class="orbit-badge">
+            <div class="o-ring"></div><div class="o-core glass-2 rim" style="display:flex;align-items:center;justify-content:center;font-size:18px">◈</div></div>
+            <span class="muted tiny">Dashed orbit ring spin</span></div></div>
+
+        <div class="demo"><div class="demo-num"><span>ISO SLAB</span><i></i></div>
+          <div class="demo-body"><div class="slab glass-2 rim spec" style="width:170px;height:90px;display:flex;align-items:center;justify-content:center;border-radius:var(--r-md)">
+            <b style="font-size:13px">hover to level</b></div></div></div>
+
+        <div class="demo"><div class="demo-num"><span>HOVER ACTIONS</span><i></i></div>
+          <div class="demo-body"><div class="hover-act card glass-2" style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <b style="font-size:13.5px">Quarterly-report.glass</b>
+              <div class="acts"><button class="btn btn-icon btn-sm">✎</button><button class="btn btn-icon btn-sm">↗</button><button class="btn btn-icon btn-sm">🗑</button></div></div>
+            <p class="card-sub">Actions reveal on hover — keeps lists quiet.</p></div></div></div>
+      </div>
+    </section>
+
+    <div class="footer">
+      <p>Aurora Glass — built as six optical layers: <span class="mono">blur · tint · rim · specular · depth · elevation</span></p>
+      <p class="muted">CSS variables drive every component — drop <span class="mono">glass.css</span> into any app (web, Wails, Electron) or port via the Flutter kit.</p>
+    </div>
+    </div>
+  </div>
+</main>
+
+<!-- ======================================================== LIVE OVERLAYS -->
+<div class="scrim" id="scrim"></div>
+
+<div class="modal glass-3 spec" id="modal-1" role="dialog">
+  <p class="m-title">Refractive pane</p>
+  <p class="m-body">Modals sit on Level-3 glass — the thickest blur, the deepest shadow, the brightest rim.</p>
+  <div class="m-actions"><button class="btn btn-ghost" data-close>Cancel</button><button class="btn btn-primary" data-close>Solidify</button></div>
+</div>
+
+<div class="modal glass-3 spec" id="modal-confirm" role="alertdialog">
+  <p class="m-title">Delete this pane?</p>
+  <p class="m-body">The backdrop beneath it will become sharp again. This cannot be undone.</p>
+  <div class="m-actions"><button class="btn btn-ghost" data-close>Keep</button><button class="btn btn-destructive" data-close>Delete</button></div>
+</div>
+
+<aside class="drawer glass-3" id="drawer-1">
+  <div style="display:flex;align-items:center;justify-content:space-between"><b style="font-size:16px">Inspector</b><button class="btn btn-icon btn-sm" data-close>✕</button></div>
+  <div class="divider"></div>
+  <div class="prog-row"><div class="pr-head"><span>Blur radius</span><b>36px</b></div><div class="prog"><div class="bar" style="width:80%"></div></div></div>
+  <div class="prog-row"><div class="pr-head"><span>Saturation</span><b>190%</b></div><div class="prog"><div class="bar" style="width:95%"></div></div></div>
+  <div class="prog-row"><div class="pr-head"><span>Rim light</span><b>42%</b></div><div class="prog"><div class="bar" style="width:42%"></div></div></div>
+  <div style="margin-top:auto"><button class="btn btn-primary btn-block" data-close>Apply</button></div>
+</aside>
+
+<div class="sheet glass-3" id="sheet-1">
+  <div class="grab"></div>
+  <b style="font-size:16px">Share pane</b>
+  <p class="muted" style="font-size:13px;margin:8px 0 16px">Export this surface as CSS, Tailwind, or a Flutter widget.</p>
+  <div style="display:flex;gap:10px"><button class="btn btn-sm" data-close>CSS</button><button class="btn btn-sm" data-close>Tailwind</button><button class="btn btn-sm" data-close>Dart</button></div>
+</div>
+
+<div class="lightbox" id="lightbox-1"><div class="frame glass-3 rim"></div></div>
+
+<div class="hud glass-3" id="hud-1"><span class="spinner lg"></span><b>Rendering glass…</b></div>
+
+<div class="palette glass-3" id="palette">
+  <div class="p-head"><span>⌕</span><input placeholder="Search components…" id="palette-input" /><span class="kbd">esc</span></div>
+  <div class="p-list" id="palette-list"></div>
+</div>
+
+<div class="menu glass-3 ctx" id="ctx-menu" style="display:none">
+  <a>✎ Rename</a><a>⧉ Duplicate</a><a>◐ Adjust blur</a><div class="msep"></div><a class="danger">🗑 Delete</a>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<aside class="codex glass-3" id="codex">
+  <div class="cx-head">
+    <div class="cx-id"><span class="cx-num" id="cx-num">#000</span><b id="cx-title">Component</b></div>
+    <div class="cx-tabs" id="cx-tabs">
+      <button class="on" data-t="html">HTML</button><button data-t="react">React</button><button data-t="flutter">Flutter</button>
+    </div>
+    <button class="btn btn-sm btn-ghost" id="cx-copy">⧉ Copy</button>
+    <button class="btn btn-icon btn-sm" data-close>✕</button>
+  </div>
+  <pre class="cx-code"><code id="cx-code"></code></pre>
+  <div class="cx-foot muted tiny">Extracted live from the DOM + glass.css — this is the exact code rendering the demo.</div>
+</aside>
+
+<div class="scroll-progress" id="scroll-progress"></div>
+
+<script src="js/glass.js"></script>
+</body>
+</html>
